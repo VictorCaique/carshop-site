@@ -1,289 +1,470 @@
 <?php
 /**
- * Options page "Configuracoes do Site".
+ * Tela "Configuracoes do Site" em WordPress nativo (Settings API).
+ *
  * Este e o coracao da replicabilidade: tudo que muda de cliente para cliente
- * esta aqui, nada em arquivo do tema.
+ * esta aqui, nada em arquivo. Sem plugin pago - o Meta Box gratuito nao tem
+ * options page, entao esta tela e nossa.
+ *
+ * Tudo e gravado num unico option: `lv_opcoes`.
  */
 
 defined( 'ABSPATH' ) || exit;
 
-add_action( 'acf/init', function () {
-	if ( ! function_exists( 'acf_add_options_page' ) ) {
-		return;
-	}
+const LV_OPCOES_KEY   = 'lv_opcoes';
+const LV_OPCOES_GROUP = 'lv_opcoes_group';
+const LV_OPCOES_SLUG  = 'lv-configuracoes';
 
-	acf_add_options_page(
+/**
+ * Menu.
+ */
+add_action( 'admin_menu', function (): void {
+	add_menu_page(
+		'Configuracoes do Site',
+		'Configuracoes do Site',
+		'manage_options',
+		LV_OPCOES_SLUG,
+		'lv_render_pagina_opcoes',
+		'dashicons-admin-customizer',
+		4
+	);
+} );
+
+add_action( 'admin_init', function (): void {
+	register_setting(
+		LV_OPCOES_GROUP,
+		LV_OPCOES_KEY,
 		[
-			'page_title'      => 'Configuracoes do Site',
-			'menu_title'      => 'Configuracoes do Site',
-			'menu_slug'       => 'lv-configuracoes',
-			'capability'      => 'manage_options',
-			'position'        => 4,
-			'icon_url'        => 'dashicons-admin-customizer',
-			'redirect'        => false,
-			'updated_message' => 'Configuracoes salvas.',
+			'type'              => 'array',
+			'sanitize_callback' => 'lv_sanitizar_opcoes',
+			'default'           => lv_opcoes_padrao(),
 		]
 	);
 } );
 
-add_action( 'acf/init', function () {
-	if ( ! function_exists( 'acf_add_local_field_group' ) ) {
+/**
+ * Assets da tela. Carrega o media uploader e o color picker do proprio WP.
+ */
+add_action( 'admin_enqueue_scripts', function ( string $hook ): void {
+	if ( 'toplevel_page_' . LV_OPCOES_SLUG !== $hook ) {
 		return;
 	}
 
-	acf_add_local_field_group(
+	wp_enqueue_media();
+	wp_enqueue_style( 'wp-color-picker' );
+
+	wp_enqueue_style(
+		'lv-admin-opcoes',
+		LV_ESTOQUE_URL . 'assets/admin-opcoes.css',
+		[ 'wp-color-picker' ],
+		LV_ESTOQUE_VERSION
+	);
+
+	wp_enqueue_script(
+		'lv-admin-opcoes',
+		LV_ESTOQUE_URL . 'assets/admin-opcoes.js',
+		[ 'wp-color-picker', 'jquery' ],
+		LV_ESTOQUE_VERSION,
+		true
+	);
+
+	wp_localize_script(
+		'lv-admin-opcoes',
+		'lvOpcoes',
 		[
-			'key'      => 'group_lv_opcoes',
-			'title'    => 'Configuracoes da Loja',
-			'location' => [
-				[
-					[ 'param' => 'options_page', 'operator' => '==', 'value' => 'lv-configuracoes' ],
-				],
-			],
-			'menu_order'      => 0,
-			'label_placement' => 'top',
-			'fields'          => [
-
-				// ==================== IDENTIDADE ====================
-				[ 'key' => 'field_lv_tab_identidade', 'label' => 'Identidade', 'name' => '', 'type' => 'tab', 'placement' => 'left' ],
-				[
-					'key'           => 'field_lv_logo',
-					'label'         => 'Logo',
-					'name'          => 'logo',
-					'type'          => 'image',
-					'return_format' => 'array',
-					'preview_size'  => 'medium',
-					'instructions'  => 'PNG ou SVG com fundo transparente.',
-					'wrapper'       => [ 'width' => '33' ],
-				],
-				[
-					'key'           => 'field_lv_logo_rodape',
-					'label'         => 'Logo do rodape (versao clara)',
-					'name'          => 'logo_rodape',
-					'type'          => 'image',
-					'return_format' => 'array',
-					'preview_size'  => 'medium',
-					'wrapper'       => [ 'width' => '33' ],
-				],
-				[
-					'key'           => 'field_lv_favicon',
-					'label'         => 'Favicon',
-					'name'          => 'favicon',
-					'type'          => 'image',
-					'return_format' => 'array',
-					'preview_size'  => 'thumbnail',
-					'wrapper'       => [ 'width' => '34' ],
-				],
-				[
-					'key'           => 'field_lv_cor_primaria',
-					'label'         => 'Cor primaria',
-					'name'          => 'cor_primaria',
-					'type'          => 'color_picker',
-					'default_value' => '#0B3D91',
-					'wrapper'       => [ 'width' => '33' ],
-				],
-				[
-					'key'           => 'field_lv_cor_secundaria',
-					'label'         => 'Cor secundaria',
-					'name'          => 'cor_secundaria',
-					'type'          => 'color_picker',
-					'default_value' => '#111827',
-					'wrapper'       => [ 'width' => '33' ],
-				],
-				[
-					'key'           => 'field_lv_cor_destaque',
-					'label'         => 'Cor de destaque',
-					'name'          => 'cor_destaque',
-					'type'          => 'color_picker',
-					'default_value' => '#F59E0B',
-					'wrapper'       => [ 'width' => '34' ],
-				],
-				[
-					'key'           => 'field_lv_fonte',
-					'label'         => 'Preset de fonte',
-					'name'          => 'fonte',
-					'type'          => 'select',
-					'choices'       => [
-						'moderno' => 'Moderno - Inter / Inter (padrao, seguro)',
-						'robusto' => 'Robusto - Barlow Condensed / Inter (picape, 4x4, populares)',
-						'premium' => 'Premium - Playfair Display / Source Sans 3 (importados, alto padrao)',
-					],
-					'default_value' => 'moderno',
-					'return_format' => 'value',
-				],
-
-				// ==================== CONTATO ====================
-				[ 'key' => 'field_lv_tab_contato', 'label' => 'Contato', 'name' => '', 'type' => 'tab', 'placement' => 'left' ],
-				[ 'key' => 'field_lv_nome_loja', 'label' => 'Nome da loja', 'name' => 'nome_loja', 'type' => 'text', 'wrapper' => [ 'width' => '50' ] ],
-				[ 'key' => 'field_lv_slogan', 'label' => 'Slogan', 'name' => 'slogan', 'type' => 'text', 'wrapper' => [ 'width' => '50' ] ],
-				[ 'key' => 'field_lv_cnpj', 'label' => 'CNPJ', 'name' => 'cnpj', 'type' => 'text', 'wrapper' => [ 'width' => '33' ] ],
-				[
-					'key'          => 'field_lv_ano_fundacao',
-					'label'        => 'Ano de fundacao',
-					'name'         => 'ano_fundacao',
-					'type'         => 'number',
-					'instructions' => 'Usado no selo "X anos de mercado".',
-					'wrapper'      => [ 'width' => '33' ],
-				],
-				[ 'key' => 'field_lv_telefone_fixo', 'label' => 'Telefone', 'name' => 'telefone_fixo', 'type' => 'text', 'wrapper' => [ 'width' => '34' ] ],
-				[ 'key' => 'field_lv_email', 'label' => 'E-mail', 'name' => 'email', 'type' => 'email', 'wrapper' => [ 'width' => '50' ] ],
-				[
-					'key'          => 'field_lv_endereco',
-					'label'        => 'Endereco',
-					'name'         => 'endereco',
-					'type'         => 'text',
-					'instructions' => 'Rua, numero e bairro.',
-					'wrapper'      => [ 'width' => '50' ],
-				],
-				[ 'key' => 'field_lv_cidade', 'label' => 'Cidade', 'name' => 'cidade', 'type' => 'text', 'wrapper' => [ 'width' => '33' ] ],
-				[ 'key' => 'field_lv_estado', 'label' => 'Estado (UF)', 'name' => 'estado', 'type' => 'text', 'maxlength' => 2, 'wrapper' => [ 'width' => '33' ] ],
-				[ 'key' => 'field_lv_cep', 'label' => 'CEP', 'name' => 'cep', 'type' => 'text', 'wrapper' => [ 'width' => '34' ] ],
-				[
-					'key'          => 'field_lv_google_maps_embed',
-					'label'        => 'Google Maps (embed)',
-					'name'         => 'google_maps_embed',
-					'type'         => 'textarea',
-					'rows'         => 3,
-					'instructions' => 'Cole o iframe do Google Maps (Compartilhar > Incorporar um mapa).',
-				],
-				[
-					'key'          => 'field_lv_horario_funcionamento',
-					'label'        => 'Horario de funcionamento',
-					'name'         => 'horario_funcionamento',
-					'type'         => 'repeater',
-					'layout'       => 'table',
-					'button_label' => 'Adicionar horario',
-					'sub_fields'   => [
-						[ 'key' => 'field_lv_hf_dia', 'label' => 'Dia', 'name' => 'dia', 'type' => 'text', 'placeholder' => 'Segunda a sexta' ],
-						[ 'key' => 'field_lv_hf_horario', 'label' => 'Horario', 'name' => 'horario', 'type' => 'text', 'placeholder' => '08h as 18h' ],
-					],
-				],
-				[ 'key' => 'field_lv_instagram', 'label' => 'Instagram (URL)', 'name' => 'instagram', 'type' => 'url', 'wrapper' => [ 'width' => '50' ] ],
-				[ 'key' => 'field_lv_facebook', 'label' => 'Facebook (URL)', 'name' => 'facebook', 'type' => 'url', 'wrapper' => [ 'width' => '50' ] ],
-
-				// ==================== VENDEDORES ====================
-				[ 'key' => 'field_lv_tab_vendedores', 'label' => 'Vendedores', 'name' => '', 'type' => 'tab', 'placement' => 'left' ],
-				[
-					'key'          => 'field_lv_vendedores',
-					'label'        => 'Vendedores',
-					'name'         => 'vendedores',
-					'type'         => 'repeater',
-					'layout'       => 'block',
-					'button_label' => 'Adicionar vendedor',
-					'instructions' => 'O primeiro da lista e o padrao para veiculos sem vendedor definido.',
-					'sub_fields'   => [
-						[ 'key' => 'field_lv_v_nome', 'label' => 'Nome', 'name' => 'nome', 'type' => 'text', 'required' => 1, 'wrapper' => [ 'width' => '35' ] ],
-						[
-							'key'          => 'field_lv_v_whatsapp',
-							'label'        => 'WhatsApp',
-							'name'         => 'whatsapp',
-							'type'         => 'text',
-							'required'     => 1,
-							'instructions' => 'So digitos, com pais e DDD. Ex: 5511987654321',
-							'placeholder'  => '5511987654321',
-							'wrapper'      => [ 'width' => '35' ],
-						],
-						[ 'key' => 'field_lv_v_cargo', 'label' => 'Cargo', 'name' => 'cargo', 'type' => 'text', 'wrapper' => [ 'width' => '30' ] ],
-						[ 'key' => 'field_lv_v_foto', 'label' => 'Foto', 'name' => 'foto', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'thumbnail' ],
-					],
-				],
-
-				// ==================== CONTEUDO ====================
-				[ 'key' => 'field_lv_tab_conteudo', 'label' => 'Conteudo', 'name' => '', 'type' => 'tab', 'placement' => 'left' ],
-				[ 'key' => 'field_lv_hero_titulo', 'label' => 'Hero - titulo', 'name' => 'hero_titulo', 'type' => 'text', 'wrapper' => [ 'width' => '50' ] ],
-				[ 'key' => 'field_lv_hero_subtitulo', 'label' => 'Hero - subtitulo', 'name' => 'hero_subtitulo', 'type' => 'text', 'wrapper' => [ 'width' => '50' ] ],
-				[
-					'key'           => 'field_lv_hero_imagem',
-					'label'         => 'Hero - imagem de fundo',
-					'name'          => 'hero_imagem',
-					'type'          => 'image',
-					'return_format' => 'array',
-					'preview_size'  => 'medium',
-					'instructions'  => 'A fachada da loja ou um carro do estoque. Minimo 1920px de largura.',
-				],
-				[ 'key' => 'field_lv_sobre_titulo', 'label' => 'Sobre - titulo', 'name' => 'sobre_titulo', 'type' => 'text' ],
-				[ 'key' => 'field_lv_sobre_texto', 'label' => 'Sobre - texto', 'name' => 'sobre_texto', 'type' => 'wysiwyg', 'media_upload' => 0, 'toolbar' => 'basic' ],
-				[ 'key' => 'field_lv_sobre_imagem', 'label' => 'Sobre - imagem', 'name' => 'sobre_imagem', 'type' => 'image', 'return_format' => 'array', 'preview_size' => 'medium' ],
-				[
-					'key'          => 'field_lv_diferenciais',
-					'label'        => 'Diferenciais',
-					'name'         => 'diferenciais',
-					'type'         => 'repeater',
-					'layout'       => 'table',
-					'max'          => 4,
-					'button_label' => 'Adicionar diferencial',
-					'sub_fields'   => [
-						[
-							'key'           => 'field_lv_d_icone',
-							'label'         => 'Icone',
-							'name'          => 'icone',
-							'type'          => 'select',
-							'choices'       => [
-								'shield'   => 'Escudo (garantia)',
-								'card'     => 'Cartao (financiamento)',
-								'exchange' => 'Troca',
-								'check'    => 'Check (procedencia)',
-								'wrench'   => 'Chave (revisao)',
-								'clock'    => 'Relogio (agilidade)',
-								'star'     => 'Estrela',
-								'car'      => 'Carro',
-							],
-							'default_value' => 'check',
-						],
-						[ 'key' => 'field_lv_d_titulo', 'label' => 'Titulo', 'name' => 'titulo', 'type' => 'text' ],
-						[ 'key' => 'field_lv_d_texto', 'label' => 'Texto', 'name' => 'texto', 'type' => 'textarea', 'rows' => 2 ],
-					],
-				],
-				[
-					'key'          => 'field_lv_depoimentos',
-					'label'        => 'Depoimentos',
-					'name'         => 'depoimentos',
-					'type'         => 'repeater',
-					'layout'       => 'block',
-					'button_label' => 'Adicionar depoimento',
-					'sub_fields'   => [
-						[ 'key' => 'field_lv_dep_nome', 'label' => 'Nome', 'name' => 'nome', 'type' => 'text', 'wrapper' => [ 'width' => '50' ] ],
-						[
-							'key'           => 'field_lv_dep_nota',
-							'label'         => 'Nota (1 a 5)',
-							'name'          => 'nota',
-							'type'          => 'number',
-							'min'           => 1,
-							'max'           => 5,
-							'default_value' => 5,
-							'wrapper'       => [ 'width' => '50' ],
-						],
-						[ 'key' => 'field_lv_dep_texto', 'label' => 'Depoimento', 'name' => 'texto', 'type' => 'textarea', 'rows' => 3 ],
-					],
-				],
-
-				// ==================== INTEGRACOES ====================
-				[ 'key' => 'field_lv_tab_integracoes', 'label' => 'Integracoes', 'name' => '', 'type' => 'tab', 'placement' => 'left' ],
-				[
-					'key'         => 'field_lv_google_analytics_id',
-					'label'       => 'Google Analytics (ID)',
-					'name'        => 'google_analytics_id',
-					'type'        => 'text',
-					'placeholder' => 'G-XXXXXXXXXX',
-					'wrapper'     => [ 'width' => '33' ],
-				],
-				[ 'key' => 'field_lv_meta_pixel_id', 'label' => 'Meta Pixel (ID)', 'name' => 'meta_pixel_id', 'type' => 'text', 'wrapper' => [ 'width' => '33' ] ],
-				[
-					'key'     => 'field_lv_google_site_verification',
-					'label'   => 'Google Site Verification',
-					'name'    => 'google_site_verification',
-					'type'    => 'text',
-					'wrapper' => [ 'width' => '34' ],
-				],
-				[
-					'key'           => 'field_lv_whatsapp_flutuante',
-					'label'         => 'Botao flutuante de WhatsApp',
-					'name'          => 'whatsapp_flutuante',
-					'type'          => 'true_false',
-					'ui'            => 1,
-					'default_value' => 1,
-				],
-			],
+			'selecionar' => 'Selecionar imagem',
+			'usar'       => 'Usar esta imagem',
+			'remover'    => 'Remover',
 		]
 	);
-}, 20 );
+} );
+
+// ---------------------------------------------------------------------------
+// Sanitizacao
+// ---------------------------------------------------------------------------
+
+/**
+ * Sanitiza um valor conforme o tipo declarado no esquema.
+ */
+function lv_sanitizar_valor( array $campo, $valor ) {
+	switch ( $campo['type'] ) {
+		case 'image':
+			$id = (int) $valor;
+			if ( ! $id || ! wp_attachment_is_image( $id ) ) {
+				return '';
+			}
+			$src = wp_get_attachment_image_src( $id, 'full' );
+			return [
+				'id'     => $id,
+				'url'    => $src ? $src[0] : wp_get_attachment_url( $id ),
+				'width'  => $src ? (int) $src[1] : 0,
+				'height' => $src ? (int) $src[2] : 0,
+			];
+
+		case 'checkbox':
+			return empty( $valor ) ? 0 : 1;
+
+		case 'number':
+			return '' === $valor ? '' : (int) $valor;
+
+		case 'email':
+			return sanitize_email( (string) $valor );
+
+		case 'url':
+			return esc_url_raw( (string) $valor );
+
+		case 'color':
+			$cor = sanitize_hex_color( (string) $valor );
+			return $cor ?: ( $campo['std'] ?? '' );
+
+		case 'select':
+			$opcoes = array_keys( $campo['opcoes'] ?? [] );
+			return in_array( (string) $valor, $opcoes, true ) ? (string) $valor : ( $campo['std'] ?? '' );
+
+		case 'textarea':
+			// O embed do Maps precisa passar o iframe inteiro.
+			if ( str_contains( (string) $valor, '<iframe' ) ) {
+				return wp_kses(
+					(string) $valor,
+					[
+						'iframe' => [
+							'src'             => true,
+							'width'           => true,
+							'height'          => true,
+							'style'           => true,
+							'allowfullscreen' => true,
+							'loading'         => true,
+							'referrerpolicy'  => true,
+							'title'           => true,
+						],
+					]
+				);
+			}
+			return sanitize_textarea_field( (string) $valor );
+
+		case 'wysiwyg':
+			return wp_kses_post( (string) $valor );
+
+		case 'tel':
+		case 'text':
+		default:
+			return sanitize_text_field( (string) $valor );
+	}
+}
+
+/**
+ * Sanitizacao do option inteiro, guiada pelo esquema.
+ * O que nao esta no esquema nao entra no banco.
+ */
+function lv_sanitizar_opcoes( $entrada ): array {
+	$entrada = is_array( $entrada ) ? $entrada : [];
+	$limpo   = [];
+
+	foreach ( lv_opcoes_schema() as $aba ) {
+		foreach ( $aba['campos'] as $id => $campo ) {
+
+			if ( 'repeater' === $campo['type'] ) {
+				$linhas = [];
+
+				foreach ( (array) ( $entrada[ $id ] ?? [] ) as $linha ) {
+					if ( ! is_array( $linha ) ) {
+						continue;
+					}
+
+					$limpa = [];
+					foreach ( $campo['sub'] as $sub_id => $sub ) {
+						$limpa[ $sub_id ] = lv_sanitizar_valor( $sub, $linha[ $sub_id ] ?? '' );
+					}
+
+					// Linha totalmente vazia (o usuario adicionou e nao preencheu) some.
+					$tem_conteudo = array_filter(
+						$limpa,
+						static fn( $v ) => is_array( $v ) ? ! empty( $v ) : '' !== (string) $v && '0' !== (string) $v
+					);
+					if ( $tem_conteudo ) {
+						$linhas[] = $limpa;
+					}
+				}
+
+				if ( isset( $campo['max'] ) ) {
+					$linhas = array_slice( $linhas, 0, (int) $campo['max'] );
+				}
+
+				$limpo[ $id ] = $linhas;
+				continue;
+			}
+
+			$limpo[ $id ] = lv_sanitizar_valor( $campo, $entrada[ $id ] ?? '' );
+		}
+	}
+
+	// O WhatsApp precisa ser so digitos para o wa.me funcionar.
+	foreach ( $limpo['vendedores'] ?? [] as $i => $v ) {
+		$limpo['vendedores'][ $i ]['whatsapp'] = preg_replace( '/\D/', '', (string) ( $v['whatsapp'] ?? '' ) );
+	}
+
+	return $limpo;
+}
+
+// ---------------------------------------------------------------------------
+// Renderizacao
+// ---------------------------------------------------------------------------
+
+/**
+ * Um campo. $name e o caminho no array do option.
+ */
+function lv_render_campo( string $name, string $id_html, array $campo, $valor ): void {
+	$desc = ! empty( $campo['desc'] )
+		? '<p class="description">' . esc_html( $campo['desc'] ) . '</p>'
+		: '';
+
+	switch ( $campo['type'] ) {
+
+		case 'image':
+			$url = is_array( $valor ) ? ( $valor['url'] ?? '' ) : '';
+			$aid = is_array( $valor ) ? (int) ( $valor['id'] ?? 0 ) : 0;
+			?>
+			<div class="lv-campo-imagem" data-lv-imagem>
+				<div class="lv-campo-imagem__preview">
+					<?php if ( $url ) : ?>
+						<img src="<?php echo esc_url( $url ); ?>" alt="">
+					<?php endif; ?>
+				</div>
+				<input type="hidden" name="<?php echo esc_attr( $name ); ?>"
+					value="<?php echo esc_attr( (string) $aid ); ?>" data-lv-imagem-id>
+				<p>
+					<button type="button" class="button" data-lv-imagem-escolher>Selecionar imagem</button>
+					<button type="button" class="button-link lv-remover" data-lv-imagem-remover
+						<?php echo $aid ? '' : 'hidden'; ?>>Remover</button>
+				</p>
+			</div>
+			<?php
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
+
+		case 'color':
+			printf(
+				'<input type="text" class="lv-color" name="%s" id="%s" value="%s" data-default-color="%s">',
+				esc_attr( $name ),
+				esc_attr( $id_html ),
+				esc_attr( (string) $valor ),
+				esc_attr( (string) ( $campo['std'] ?? '' ) )
+			);
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
+
+		case 'select':
+			printf( '<select name="%s" id="%s">', esc_attr( $name ), esc_attr( $id_html ) );
+			if ( ! empty( $campo['placeholder'] ) ) {
+				printf( '<option value="">%s</option>', esc_html( $campo['placeholder'] ) );
+			}
+			foreach ( (array) ( $campo['opcoes'] ?? [] ) as $opcao => $label ) {
+				printf(
+					'<option value="%s"%s>%s</option>',
+					esc_attr( (string) $opcao ),
+					selected( (string) $valor, (string) $opcao, false ),
+					esc_html( (string) $label )
+				);
+			}
+			echo '</select>';
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
+
+		case 'checkbox':
+			printf(
+				'<label class="lv-switch"><input type="hidden" name="%1$s" value="0">'
+				. '<input type="checkbox" name="%1$s" id="%2$s" value="1"%3$s> <span>Ativado</span></label>',
+				esc_attr( $name ),
+				esc_attr( $id_html ),
+				checked( ! empty( $valor ), true, false )
+			);
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
+
+		case 'textarea':
+			printf(
+				'<textarea name="%s" id="%s" rows="4" class="large-text" placeholder="%s">%s</textarea>',
+				esc_attr( $name ),
+				esc_attr( $id_html ),
+				esc_attr( (string) ( $campo['placeholder'] ?? '' ) ),
+				esc_textarea( (string) $valor )
+			);
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
+
+		case 'wysiwyg':
+			// O TinyMCE so aceita id com letras, numeros e underscore.
+			wp_editor(
+				(string) $valor,
+				preg_replace( '/[^a-z0-9_]/', '_', strtolower( $id_html ) ),
+				[
+					'textarea_name' => $name,
+					'textarea_rows' => 8,
+					'media_buttons' => false,
+					'teeny'         => true,
+				]
+			);
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
+
+		case 'number':
+			printf(
+				'<input type="number" name="%s" id="%s" value="%s" class="regular-text"%s%s%s>',
+				esc_attr( $name ),
+				esc_attr( $id_html ),
+				esc_attr( (string) $valor ),
+				isset( $campo['min'] ) ? ' min="' . esc_attr( (string) $campo['min'] ) . '"' : '',
+				isset( $campo['max'] ) ? ' max="' . esc_attr( (string) $campo['max'] ) . '"' : '',
+				! empty( $campo['placeholder'] ) ? ' placeholder="' . esc_attr( $campo['placeholder'] ) . '"' : ''
+			);
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+			break;
+
+		default:
+			$tipos = [ 'email' => 'email', 'url' => 'url', 'tel' => 'tel' ];
+			printf(
+				'<input type="%s" name="%s" id="%s" value="%s" class="regular-text" placeholder="%s">',
+				esc_attr( $tipos[ $campo['type'] ] ?? 'text' ),
+				esc_attr( $name ),
+				esc_attr( $id_html ),
+				esc_attr( (string) $valor ),
+				esc_attr( (string) ( $campo['placeholder'] ?? '' ) )
+			);
+			echo $desc; // phpcs:ignore WordPress.Security.EscapeOutput
+	}
+}
+
+/**
+ * Uma linha do repeater. $indice pode ser o placeholder __i__ do template.
+ */
+function lv_render_linha_repeater( string $id, array $campo, $indice, array $valores ): void {
+	$rotulo = $campo['rotulo'] ?? 'item';
+	?>
+	<div class="lv-repeater__linha" data-lv-linha>
+		<div class="lv-repeater__cabecalho">
+			<span class="lv-repeater__handle" title="Arraste para reordenar">&#8942;&#8942;</span>
+			<strong><?php echo esc_html( ucfirst( $rotulo ) ); ?></strong>
+			<button type="button" class="button-link lv-remover" data-lv-remover-linha>Remover</button>
+		</div>
+
+		<div class="lv-grade">
+			<?php foreach ( $campo['sub'] as $sub_id => $sub ) : ?>
+				<?php
+				$name    = sprintf( '%s[%s][%s][%s]', LV_OPCOES_KEY, $id, $indice, $sub_id );
+				$id_html = sprintf( 'lv-%s-%s-%s', $id, $indice, $sub_id );
+				$valor   = $valores[ $sub_id ] ?? ( $sub['std'] ?? '' );
+				?>
+				<div class="lv-campo lv-campo--<?php echo esc_attr( $sub['largura'] ?? 'cheia' ); ?>">
+					<label for="<?php echo esc_attr( $id_html ); ?>"><?php echo esc_html( $sub['label'] ); ?></label>
+					<?php lv_render_campo( $name, $id_html, $sub, $valor ); ?>
+				</div>
+			<?php endforeach; ?>
+		</div>
+	</div>
+	<?php
+}
+
+/**
+ * A pagina.
+ */
+function lv_render_pagina_opcoes(): void {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$schema = lv_opcoes_schema();
+	$opcoes = wp_parse_args( (array) get_option( LV_OPCOES_KEY, [] ), lv_opcoes_padrao() );
+	$abas   = array_keys( $schema );
+	$ativa  = isset( $_GET['aba'] ) && in_array( sanitize_key( wp_unslash( $_GET['aba'] ) ), $abas, true )
+		? sanitize_key( wp_unslash( $_GET['aba'] ) )
+		: $abas[0];
+	?>
+	<div class="wrap lv-opcoes">
+		<h1>Configuracoes do Site</h1>
+		<p class="lv-opcoes__intro">
+			Tudo que muda de loja para loja esta aqui. Nada precisa ser editado em arquivo.
+		</p>
+
+		<h2 class="nav-tab-wrapper">
+			<?php foreach ( $schema as $slug => $aba ) : ?>
+				<a href="<?php echo esc_url( add_query_arg( [ 'page' => LV_OPCOES_SLUG, 'aba' => $slug ], admin_url( 'admin.php' ) ) ); ?>"
+					class="nav-tab <?php echo $slug === $ativa ? 'nav-tab-active' : ''; ?>"
+					data-lv-aba="<?php echo esc_attr( $slug ); ?>">
+					<?php echo esc_html( $aba['titulo'] ); ?>
+				</a>
+			<?php endforeach; ?>
+		</h2>
+
+		<form method="post" action="options.php" class="lv-opcoes__form">
+			<?php settings_fields( LV_OPCOES_GROUP ); ?>
+
+			<?php foreach ( $schema as $slug => $aba ) : ?>
+				<div class="lv-painel" data-lv-painel="<?php echo esc_attr( $slug ); ?>"
+					<?php echo $slug === $ativa ? '' : 'hidden'; ?>>
+
+					<div class="lv-grade">
+						<?php foreach ( $aba['campos'] as $id => $campo ) : ?>
+
+							<?php if ( 'repeater' === $campo['type'] ) : ?>
+								<div class="lv-campo lv-campo--cheia">
+									<label><?php echo esc_html( $campo['label'] ); ?></label>
+									<?php if ( ! empty( $campo['desc'] ) ) : ?>
+										<p class="description"><?php echo esc_html( $campo['desc'] ); ?></p>
+									<?php endif; ?>
+
+									<div class="lv-repeater" data-lv-repeater="<?php echo esc_attr( $id ); ?>"
+										<?php echo isset( $campo['max'] ) ? 'data-lv-max="' . esc_attr( (string) $campo['max'] ) . '"' : ''; ?>>
+
+										<div class="lv-repeater__linhas" data-lv-linhas>
+											<?php foreach ( (array) ( $opcoes[ $id ] ?? [] ) as $i => $linha ) : ?>
+												<?php lv_render_linha_repeater( $id, $campo, $i, (array) $linha ); ?>
+											<?php endforeach; ?>
+										</div>
+
+										<template data-lv-template>
+											<?php lv_render_linha_repeater( $id, $campo, '__i__', [] ); ?>
+										</template>
+
+										<button type="button" class="button" data-lv-adicionar>
+											Adicionar <?php echo esc_html( $campo['rotulo'] ?? 'item' ); ?>
+										</button>
+									</div>
+								</div>
+
+							<?php else : ?>
+								<?php
+								$name    = sprintf( '%s[%s]', LV_OPCOES_KEY, $id );
+								$id_html = 'lv-' . $id;
+								?>
+								<div class="lv-campo lv-campo--<?php echo esc_attr( $campo['largura'] ?? 'cheia' ); ?>">
+									<label for="<?php echo esc_attr( $id_html ); ?>"><?php echo esc_html( $campo['label'] ); ?></label>
+									<?php lv_render_campo( $name, $id_html, $campo, $opcoes[ $id ] ?? '' ); ?>
+								</div>
+							<?php endif; ?>
+
+						<?php endforeach; ?>
+					</div>
+				</div>
+			<?php endforeach; ?>
+
+			<?php submit_button( 'Salvar configuracoes' ); ?>
+		</form>
+	</div>
+	<?php
+}
+
+/**
+ * Atalho para a tela na barra de admin - o lojista vive nessa pagina.
+ */
+add_action( 'admin_bar_menu', function ( $barra ): void {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+	$barra->add_node(
+		[
+			'id'    => 'lv-configuracoes',
+			'title' => 'Configuracoes do Site',
+			'href'  => admin_url( 'admin.php?page=' . LV_OPCOES_SLUG ),
+		]
+	);
+}, 90 );

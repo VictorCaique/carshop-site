@@ -9,8 +9,7 @@ CarShopSite/
 ├── Makefile                  atalhos (make up, make install, make seed…)
 ├── docker/
 │   ├── setup.sh              instalação automática do WP (roda no container)
-│   ├── uploads.ini           limites de upload do PHP
-│   └── acf-pro/              coloque aqui o advanced-custom-fields-pro.zip
+│   └── uploads.ini           limites de upload do PHP
 ├── plugin-lv-estoque/        O DADO — CPT, taxonomias, campos, filtros, schema
 │   ├── lv-estoque.php
 │   ├── inc/
@@ -63,18 +62,28 @@ sem rebuild.
 
 ---
 
-## ACF PRO
+## Campos: zero plugin pago
 
-O SPEC usa ACF PRO (licença única, sites ilimitados) por causa de **galeria**, **repeater**
-e **options page** — os três recursos que o template depende.
+O SPEC previa ACF PRO. Este projeto usa a alternativa gratuita, dividida em duas partes:
 
-Coloque o zip em `docker/acf-pro/` e rode `make install`: o setup detecta e instala.
-Sem o zip, o setup instala o ACF free e o site continua de pé, mas a tela
-*Configurações do Site* e a galeria não aparecem.
+**Campos do veículo → [Meta Box](https://wordpress.org/plugins/meta-box/) (grátis, wordpress.org).**
+Registrados em PHP pelo filtro `rwmb_meta_boxes`, em `inc/campos-metabox.php`. A galeria usa
+`image_advanced`, que dá múltiplas imagens de graça — era exatamente esse o recurso que
+justificava o ACF PRO. O `make install` instala o Meta Box sozinho; não há licença nem zip
+para providenciar.
 
-> Alternativa gratuita: Meta Box Lite (o campo `image_advanced` dá múltiplas imagens de graça).
-> Nesse caso só a camada de registro de campos muda — o resto do código continua igual, porque
-> o tema nunca chama `get_field()` direto: ele passa por `lv_field()` / `lv_option()`.
+**Configurações do Site → tela nossa, em WordPress nativo.**
+Options page é a única peça que o Meta Box cobra (MB Settings Page / AIO), então `inc/opcoes-loja.php`
+monta a tela com a Settings API: abas, media picker e color picker do próprio WordPress, e
+repeaters em JS próprio (arrastar para reordenar incluso). Tudo grava num único option, `lv_opcoes`.
+
+O `inc/opcoes-schema.php` é a fonte única da verdade dessa tela: a renderização, a sanitização e
+os valores padrão saem todos dele. Campo novo nas configurações = **uma entrada nesse array**,
+mais nada.
+
+> Trocar de camada de campos continua barato: o tema nunca lê meta direto, sempre passa por
+> `lv_field()` / `lv_option()`. E como o Meta Box grava em post meta padrão, se ele for
+> desativado o site inteiro continua de pé — só a tela de cadastro do veículo fica sem os campos.
 
 ---
 
@@ -87,8 +96,9 @@ regra de ouro no WordPress.
 |---|---|
 | `inc/cpt-veiculo.php` | CPT `veiculo`, tamanhos de imagem, `alt` automático |
 | `inc/taxonomias.php` | marca, carroceria, câmbio, combustível, opcional + termos padrão |
-| `inc/campos-acf.php` | field group declarado em PHP (nada de configurar campo a campo por site) |
-| `inc/opcoes-loja.php` | *Configurações do Site* — o coração da replicabilidade |
+| `inc/campos-metabox.php` | campos do veículo declarados em PHP (nada de configurar campo a campo por site) |
+| `inc/opcoes-schema.php` | esquema das *Configurações do Site* — fonte única de campos, padrões e sanitização |
+| `inc/opcoes-loja.php` | a tela em si (Settings API, abas, media picker, repeaters) — o coração da replicabilidade |
 | `inc/query-filtros.php` | filtros por GET via `pre_get_posts`, ordenação, relacionados |
 | `inc/schema.php` | JSON-LD `Car` + `AutoDealer`, Open Graph, favicon, analytics |
 | `inc/helpers.php` | `lv_preco()`, `lv_whatsapp_link()`, `lv_km()`… tudo que o tema chama |
@@ -108,7 +118,7 @@ regra de ouro no WordPress.
 - Status `vendido`: sai da vitrine, mantém a URL viva com selo e CTA de similares
 - Home completa: hero com busca rápida, destaques, diferenciais, sobre, depoimentos, contato
 - JSON-LD, Open Graph, formulário de contato com consentimento (LGPD) e honeypot
-- Sem jQuery no front, sem page builder, CSS e JS próprios
+- Sem jQuery no front, sem page builder, sem plugin pago — CSS e JS próprios
 
 ## Fora de escopo na v1 (SPEC §1)
 

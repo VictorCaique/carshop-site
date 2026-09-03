@@ -24,7 +24,7 @@ Sem isso completo, **não comece**. O maior atraso desse tipo de projeto é espe
 - [ ] `deploy/loja.env` preenchido
 - [ ] `bash deploy/setup-loja.sh deploy/loja.env` executado sem erro
 - [ ] Tema `tema-lv` e plugin `plugin-lv-estoque` ativos
-- [ ] ACF PRO ativado com a licença
+- [ ] Meta Box (gratuito) ativo — campos do veículo aparecem na tela de cadastro
 - [ ] Wordfence, UpdraftPlus e WebP Express ativos
 - [ ] Permalinks em `/%postname%/`
 

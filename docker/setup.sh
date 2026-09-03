@@ -33,15 +33,8 @@ $WP option update time_format 'H:i'
 $WP option update start_of_week 0
 $WP rewrite structure '/%postname%/' --hard
 
-echo "==> ACF"
-ACF_ZIP=$(ls /lv-docker/acf-pro/*.zip 2>/dev/null | head -1 || true)
-if [ -n "$ACF_ZIP" ]; then
-  echo "    Instalando ACF PRO de $ACF_ZIP"
-  $WP plugin install "$ACF_ZIP" --force --activate
-else
-  echo "    ACF PRO nao encontrado em docker/acf-pro/. Instalando ACF free (repeater/gallery/options page limitados)."
-  $WP plugin install advanced-custom-fields --activate || true
-fi
+echo "==> Meta Box (campos do veiculo, versao gratuita)"
+$WP plugin install meta-box --activate
 
 echo "==> Plugins de apoio (dev)"
 $WP plugin install wordpress-importer --activate || true

@@ -1,46 +1,58 @@
 <?php
 /**
  * Helpers do template. Tudo que o tema chama passa por aqui, para que o tema
- * nunca dependa diretamente do ACF.
+ * nunca dependa diretamente da camada de campos (hoje Meta Box).
+ *
+ * Os campos do veiculo sao lidos direto do post meta: o Meta Box grava em
+ * post meta padrao, entao o site continua de pe mesmo se o plugin de campos
+ * for desativado - so o painel de cadastro fica sem os campos.
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Le um campo do veiculo. Usa ACF quando existe, senao cai no post meta.
+ * Le um campo do veiculo.
  */
 function lv_field( string $name, $post_id = null, $default = null ) {
 	$post_id = $post_id ?: get_the_ID();
 
-	if ( function_exists( 'get_field' ) ) {
-		$valor = get_field( $name, $post_id );
-	} else {
-		$valor = get_post_meta( (int) $post_id, $name, true );
+	if ( ! $post_id ) {
+		return $default;
 	}
+
+	$valor = get_post_meta( (int) $post_id, $name, true );
 
 	if ( null === $valor || '' === $valor || ( is_array( $valor ) && ! $valor ) ) {
 		return $default;
 	}
+
 	return $valor;
 }
 
 /**
- * Le uma opcao da loja (options page do ACF) com fallback para wp_option.
+ * Le uma opcao da loja (tela Configuracoes do Site).
+ * Tudo vive num unico option, `lv_opcoes`.
  */
 function lv_option( string $name, $default = null ) {
-	if ( function_exists( 'get_field' ) ) {
-		$valor = get_field( $name, 'option' );
-		if ( null !== $valor && '' !== $valor && ! ( is_array( $valor ) && ! $valor ) ) {
-			return $valor;
-		}
+	// get_option ja e cacheado em memoria pelo WordPress: nada de cache proprio,
+	// que ficaria desatualizado depois de um update_option na mesma execucao.
+	$opcoes = (array) get_option( 'lv_opcoes', [] );
+
+	if ( ! isset( $opcoes[ $name ] ) && function_exists( 'lv_opcoes_padrao' ) ) {
+		$opcoes = wp_parse_args( $opcoes, lv_opcoes_padrao() );
 	}
 
-	$fallback = get_option( 'lv_opcoes', [] );
-	if ( is_array( $fallback ) && isset( $fallback[ $name ] ) && '' !== $fallback[ $name ] ) {
-		return $fallback[ $name ];
+	if ( ! isset( $opcoes[ $name ] ) ) {
+		return $default;
 	}
 
-	return $default;
+	$valor = $opcoes[ $name ];
+
+	if ( '' === $valor || ( is_array( $valor ) && ! $valor ) ) {
+		return $default;
+	}
+
+	return $valor;
 }
 
 /**
@@ -115,21 +127,37 @@ function lv_status_label( $post_id = null ): string {
 }
 
 /**
- * IDs das imagens da galeria, normalizando os formatos que o ACF devolve.
- * Sempre coloca a imagem destacada na frente.
+ * IDs das imagens da galeria.
+ *
+ * O campo image_advanced do Meta Box grava um ID por linha no post meta,
+ * todas com a mesma chave - por isso o get_post_meta com $single = false.
+ * Ainda assim normalizamos os outros formatos possiveis, para o seed e para
+ * dados vindos de uma instalacao antiga.
+ *
+ * A imagem destacada sempre vai na frente: ela e a capa do card.
  */
 function lv_galeria_ids( $post_id = null ): array {
 	$post_id = $post_id ?: get_the_ID();
-	$galeria = lv_field( 'galeria', $post_id, [] );
-	$ids     = [];
 
-	foreach ( (array) $galeria as $item ) {
-		if ( is_array( $item ) && isset( $item['ID'] ) ) {
-			$ids[] = (int) $item['ID'];
-		} elseif ( is_numeric( $item ) ) {
+	if ( ! $post_id ) {
+		return [];
+	}
+
+	$bruto = get_post_meta( (int) $post_id, 'galeria', false );
+	$ids   = [];
+
+	// Uma unica linha contendo um array serializado (formato do seed).
+	if ( 1 === count( $bruto ) && is_array( $bruto[0] ) ) {
+		$bruto = $bruto[0];
+	}
+
+	foreach ( (array) $bruto as $item ) {
+		if ( is_numeric( $item ) ) {
 			$ids[] = (int) $item;
-		} elseif ( is_object( $item ) && isset( $item->ID ) ) {
-			$ids[] = (int) $item->ID;
+		} elseif ( is_array( $item ) && isset( $item['ID'] ) ) {
+			$ids[] = (int) $item['ID'];
+		} elseif ( is_array( $item ) && isset( $item['id'] ) ) {
+			$ids[] = (int) $item['id'];
 		}
 	}
 

@@ -30,7 +30,6 @@ source "$ENV_FILE"
 
 REPO_TEMA="${REPO_TEMA:-}"
 REPO_PLUGIN="${REPO_PLUGIN:-}"
-ACF_ZIP="${ACF_ZIP:-}"
 
 echo "==> [1/7] Baixando o core em pt_BR"
 wp core download --locale=pt_BR --skip-content
@@ -67,12 +66,7 @@ if [ -n "$REPO_PLUGIN" ]; then
   git clone --depth 1 "$REPO_PLUGIN" wp-content/plugins/plugin-lv-estoque
 fi
 
-if [ -n "$ACF_ZIP" ]; then
-  wp plugin install "$ACF_ZIP" --activate
-else
-  echo "    ATENCAO: sem ACF PRO. Instalando a versao free (sem repeater/gallery/options page)."
-  wp plugin install advanced-custom-fields --activate
-fi
+wp plugin install meta-box --activate
 
 wp theme activate tema-lv
 wp plugin activate plugin-lv-estoque

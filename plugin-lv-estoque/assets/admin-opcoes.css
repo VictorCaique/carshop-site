@@ -1,0 +1,165 @@
+/* Configuracoes do Site - estilos da tela de opcoes. */
+
+.lv-opcoes__intro {
+	max-width: 70ch;
+	color: #50575e;
+}
+
+.lv-opcoes__form {
+	max-width: 1100px;
+	margin-top: 20px;
+}
+
+.lv-painel[hidden] {
+	display: none;
+}
+
+/* ---------- Grade ---------- */
+
+.lv-grade {
+	display: grid;
+	grid-template-columns: repeat(6, 1fr);
+	gap: 20px;
+	align-items: start;
+}
+
+.lv-campo {
+	grid-column: span 6;
+	min-width: 0;
+}
+
+.lv-campo--meia {
+	grid-column: span 3;
+}
+
+.lv-campo--terco {
+	grid-column: span 2;
+}
+
+@media (max-width: 900px) {
+	.lv-campo--meia,
+	.lv-campo--terco {
+		grid-column: span 6;
+	}
+}
+
+.lv-campo > label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
+.lv-campo .regular-text,
+.lv-campo select,
+.lv-campo textarea {
+	width: 100%;
+	max-width: none;
+}
+
+.lv-campo .description {
+	margin-top: 4px;
+}
+
+/* ---------- Switch ---------- */
+
+.lv-switch {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* ---------- Campo de imagem ---------- */
+
+.lv-campo-imagem__preview {
+	min-height: 0;
+}
+
+.lv-campo-imagem__preview img {
+	display: block;
+	max-width: 220px;
+	max-height: 140px;
+	width: auto;
+	height: auto;
+	margin-bottom: 8px;
+	padding: 6px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	object-fit: contain;
+}
+
+.lv-campo-imagem p {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.lv-remover {
+	color: #b32d2e;
+	text-decoration: none;
+}
+
+.lv-remover:hover {
+	color: #8a2424;
+}
+
+/* ---------- Repeater ---------- */
+
+.lv-repeater {
+	margin-top: 8px;
+}
+
+.lv-repeater__linhas {
+	display: grid;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.lv-repeater__linha {
+	padding: 16px;
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+}
+
+.lv-repeater__linha.is-arrastando {
+	opacity: .6;
+	box-shadow: 0 4px 16px rgb(0 0 0 / .15);
+}
+
+.lv-repeater__cabecalho {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-bottom: 12px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.lv-repeater__cabecalho strong {
+	flex: 1;
+	color: #50575e;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+}
+
+.lv-repeater__handle {
+	cursor: grab;
+	color: #a7aaad;
+	letter-spacing: -3px;
+	user-select: none;
+	touch-action: none;
+	padding: 2px 4px;
+}
+
+.lv-repeater__handle:active {
+	cursor: grabbing;
+}
+
+.lv-repeater__linha .lv-campo > label {
+	font-weight: 400;
+	font-size: 13px;
+	color: #50575e;
+}

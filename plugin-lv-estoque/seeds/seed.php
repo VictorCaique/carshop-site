@@ -68,14 +68,9 @@ $opcoes = [
 	],
 ];
 
-foreach ( $opcoes as $chave => $valor ) {
-	if ( function_exists( 'update_field' ) ) {
-		update_field( $chave, $valor, 'option' );
-	}
-}
-
-// Fallback para quando o ACF nao esta presente.
-update_option( 'lv_opcoes', $opcoes );
+// A tela Configuracoes do Site grava tudo num unico option; passamos pelo
+// mesmo sanitizador para o seed produzir exatamente o mesmo formato.
+update_option( 'lv_opcoes', lv_sanitizar_opcoes( $opcoes ) );
 
 // ---------------------------------------------------------------------------
 // 3. Imagem de demonstracao
@@ -238,16 +233,10 @@ foreach ( $veiculos as $v ) {
 		}
 	}
 
-	update_post_meta( $post_id, 'galeria', $galeria );
-
-	// O ACF guarda a referencia dos field keys; sem isso o painel abre vazio.
-	if ( function_exists( 'update_field' ) ) {
-		foreach ( $campos as $chave => $valor ) {
-			if ( null !== $valor ) {
-				update_field( $chave, $valor, $post_id );
-			}
-		}
-		update_field( 'galeria', $galeria, $post_id );
+	// image_advanced grava um ID por linha, todas com a mesma chave.
+	delete_post_meta( $post_id, 'galeria' );
+	foreach ( $galeria as $img_id ) {
+		add_post_meta( $post_id, 'galeria', $img_id );
 	}
 
 	$criados++;
