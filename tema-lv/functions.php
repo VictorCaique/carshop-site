@@ -47,30 +47,28 @@ add_action( 'admin_notices', function (): void {
 } );
 
 /**
- * Fallback dos helpers do plugin, para o site nao dar fatal error caso o
- * plugin seja desativado por engano em producao.
+ * O plugin LV Estoque esta carregado?
+ *
+ * IMPORTANTE: o tema NAO declara funcoes de fallback com os nomes do plugin.
+ * Na ativacao do plugin pelo painel, o WordPress ja carregou o tema antes de
+ * incluir o arquivo do plugin - os stubs do tema existiriam primeiro e o
+ * plugin morreria com "Cannot redeclare". Em vez de stubs, o tema desvia a
+ * renderizacao para um template proprio quando o plugin nao esta la.
  */
-if ( ! function_exists( 'lv_option' ) ) {
-	function lv_option( string $name, $default = null ) {
-		return $default;
-	}
+function lv_tema_tem_plugin(): bool {
+	return function_exists( 'lv_preco' );
 }
-if ( ! function_exists( 'lv_field' ) ) {
-	function lv_field( string $name, $post_id = null, $default = null ) {
-		return $default;
+
+/**
+ * Sem o plugin, o front nao tenta renderizar: devolve um 503 sobrio em vez de
+ * um fatal error com caminho de arquivo na cara do visitante.
+ */
+add_filter( 'template_include', function ( $template ) {
+	if ( lv_tema_tem_plugin() ) {
+		return $template;
 	}
-}
-if ( ! function_exists( 'lv_url_vitrine' ) ) {
-	function lv_url_vitrine( array $args = [] ): string {
-		return home_url( '/' );
-	}
-}
-if ( ! function_exists( 'lv_tel_link' ) ) {
-	function lv_tel_link( string $numero = '' ): string {
-		$digits = preg_replace( '/\D/', '', $numero );
-		return $digits ? 'tel:+' . $digits : '';
-	}
-}
+	return get_template_directory() . '/inc/sem-plugin.php';
+}, 999 );
 
 /**
  * Titulo do documento quando o carro nao tem SEO plugin.
@@ -89,9 +87,13 @@ add_filter( 'document_title_parts', function ( array $partes ): array {
  * Classes uteis no body.
  */
 add_filter( 'body_class', function ( array $classes ): array {
+	if ( ! lv_tema_tem_plugin() ) {
+		return $classes;
+	}
+
 	$classes[] = 'lv-fonte-' . sanitize_html_class( (string) lv_option( 'fonte', 'moderno' ) );
 
-	if ( is_singular( 'veiculo' ) && function_exists( 'lv_status' ) ) {
+	if ( is_singular( 'veiculo' ) ) {
 		$classes[] = 'lv-status-' . sanitize_html_class( lv_status( get_the_ID() ) );
 	}
 	return $classes;

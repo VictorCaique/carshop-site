@@ -8,7 +8,11 @@ defined( 'ABSPATH' ) || exit;
 
 /**
  * Monta um <select> de taxonomia so com termos que tem veiculo.
+ *
+ * Guardado por function_exists porque vive num template part: se um dia os
+ * filtros forem renderizados duas vezes na mesma pagina, o PHP nao morre.
  */
+if ( ! function_exists( 'lv_select_taxonomia' ) ) :
 function lv_select_taxonomia( string $taxonomia, string $label ): void {
 	$termos = get_terms(
 		[
@@ -37,6 +41,7 @@ function lv_select_taxonomia( string $taxonomia, string $label ): void {
 	</p>
 	<?php
 }
+endif;
 ?>
 
 <form class="lv-filtros" method="get" action="<?php echo esc_url( lv_url_vitrine() ); ?>" id="lv-filtros">
