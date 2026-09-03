@@ -1,0 +1,64 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/theme.json",
+	"version": 3,
+	"settings": {
+		"appearanceTools": false,
+		"useRootPaddingAwareAlignments": true,
+		"layout": {
+			"contentSize": "800px",
+			"wideSize": "1200px"
+		},
+		"color": {
+			"custom": false,
+			"customGradient": false,
+			"defaultPalette": false,
+			"defaultGradients": false,
+			"palette": [
+				{ "slug": "primaria", "name": "Primaria", "color": "var(--cor-primaria)" },
+				{ "slug": "secundaria", "name": "Secundaria", "color": "var(--cor-secundaria)" },
+				{ "slug": "destaque", "name": "Destaque", "color": "var(--cor-destaque)" },
+				{ "slug": "texto", "name": "Texto", "color": "var(--cor-texto)" },
+				{ "slug": "texto-suave", "name": "Texto suave", "color": "var(--cor-texto-suave)" },
+				{ "slug": "fundo", "name": "Fundo", "color": "var(--cor-fundo)" },
+				{ "slug": "fundo-alt", "name": "Fundo alternativo", "color": "var(--cor-fundo-alt)" },
+				{ "slug": "borda", "name": "Borda", "color": "var(--cor-borda)" }
+			]
+		},
+		"typography": {
+			"customFontSize": false,
+			"dropCap": false,
+			"fontFamilies": [
+				{ "slug": "titulo", "name": "Titulos", "fontFamily": "var(--fonte-titulo)" },
+				{ "slug": "corpo", "name": "Corpo", "fontFamily": "var(--fonte-corpo)" }
+			],
+			"fontSizes": [
+				{ "slug": "small", "name": "Pequeno", "size": "0.875rem" },
+				{ "slug": "medium", "name": "Medio", "size": "1rem" },
+				{ "slug": "large", "name": "Grande", "size": "1.25rem" },
+				{ "slug": "x-large", "name": "Muito grande", "size": "1.75rem" }
+			]
+		},
+		"spacing": {
+			"units": [ "px", "rem", "%" ]
+		}
+	},
+	"styles": {
+		"color": {
+			"background": "var(--cor-fundo)",
+			"text": "var(--cor-texto)"
+		},
+		"typography": {
+			"fontFamily": "var(--fonte-corpo)",
+			"fontSize": "1rem",
+			"lineHeight": "1.6"
+		},
+		"elements": {
+			"link": {
+				"color": { "text": "var(--cor-primaria)" }
+			},
+			"h1": { "typography": { "fontFamily": "var(--fonte-titulo)" } },
+			"h2": { "typography": { "fontFamily": "var(--fonte-titulo)" } },
+			"h3": { "typography": { "fontFamily": "var(--fonte-titulo)" } }
+		}
+	}
+}

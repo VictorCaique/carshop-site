@@ -1,0 +1,1 @@
+Coloque aqui o advanced-custom-fields-pro.zip (licenca unica). O setup detecta e instala automaticamente.

@@ -1,0 +1,7 @@
+.env
+docker/vendor/*
+!docker/vendor/.gitkeep
+docker/acf-pro/*.zip
+node_modules/
+.DS_Store
+*.log
