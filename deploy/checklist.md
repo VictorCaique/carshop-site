@@ -30,7 +30,9 @@ Sem isso completo, **não comece**. O maior atraso desse tipo de projeto é espe
 
 ## Fase 2 — Personalização (45 min)
 
-- [ ] **Identidade:** logo, logo do rodapé, favicon, 3 cores, preset de fonte
+- [ ] **Identidade:** logo, logo do rodapé, favicon
+- [ ] **Aparência:** 3 cores, preset de fonte, fundo claro/escuro, cantos, sombra, largura
+- [ ] Se o fundo for escuro ou automático: conferir o logo do rodapé e a foto do hero nos dois temas
 - [ ] **Contato:** endereço, mapa embed, telefone, e-mail, CNPJ, horários
 - [ ] **Vendedores:** nome + WhatsApp (formato `5511987654321`) de cada um
 - [ ] **Conteúdo:** hero, sobre, 3–4 diferenciais, 3 depoimentos

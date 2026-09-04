@@ -9,7 +9,7 @@
 	display: grid;
 	align-items: center;
 	min-height: clamp(380px, 52vh, 560px);
-	background-color: var(--cor-secundaria);
+	background-color: var(--cor-marca-escura);
 	background-image: var(--hero-bg, none);
 	background-size: cover;
 	background-position: center;
@@ -19,7 +19,7 @@
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(100deg, rgb(0 0 0 / .78) 20%, rgb(0 0 0 / .35) 100%);
+	background: var(--hero-overlay);
 }
 .lv-hero__inner { position: relative; padding-block: clamp(48px, 8vw, 88px); }
 .lv-hero__titulo { color: var(--cor-branco); max-width: 18ch; margin-bottom: 12px; }
@@ -102,7 +102,7 @@
 	height: 108px;
 	border-radius: var(--raio-pill);
 	background: var(--cor-destaque);
-	color: var(--cor-secundaria);
+	color: var(--cor-destaque-contraste);
 	text-align: center;
 	line-height: 1.1;
 	box-shadow: var(--sombra);
@@ -295,7 +295,7 @@
 	border: 0;
 	border-radius: var(--raio-pill);
 	background: rgb(255 255 255 / .9);
-	color: var(--cor-secundaria);
+	color: var(--cor-marca-escura);
 	box-shadow: var(--sombra-sm);
 }
 .lv-galeria__seta--esq { left: 12px; }
@@ -345,7 +345,7 @@
 	border-radius: var(--raio);
 	box-shadow: var(--sombra);
 }
-.lv-cta__valor { font-family: var(--fonte-titulo); font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.25rem); color: var(--cor-secundaria); display: block; line-height: 1.1; }
+.lv-cta__valor { font-family: var(--fonte-titulo); font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.25rem); color: var(--cor-titulo); display: block; line-height: 1.1; }
 .lv-cta__nota { font-size: .8125rem; color: var(--cor-texto-suave); }
 .lv-cta__aviso { margin: 0; padding: 10px 14px; border-radius: var(--raio-sm); background: var(--cor-fundo-alt); font-size: .875rem; }
 .lv-cta__aviso--alerta { border-left: 4px solid var(--cor-alerta); }

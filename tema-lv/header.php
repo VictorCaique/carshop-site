@@ -64,6 +64,8 @@ defined( 'ABSPATH' ) || exit;
 					<span>WhatsApp</span>
 				</a>
 			<?php endif; ?>
+
+			<?php lv_botao_tema(); ?>
 		</nav>
 
 	</div>

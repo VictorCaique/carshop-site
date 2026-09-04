@@ -21,6 +21,10 @@ add_action( 'wp_enqueue_scripts', function (): void {
 
 	wp_enqueue_script( 'lv-menu', $uri . '/assets/js/menu.js', [], $ver( '/assets/js/menu.js' ), true );
 
+	if ( lv_alternador_tema_ativo() ) {
+		wp_enqueue_script( 'lv-tema', $uri . '/assets/js/tema.js', [], $ver( '/assets/js/tema.js' ), true );
+	}
+
 	if ( is_post_type_archive( 'veiculo' ) || is_tax( [ 'marca', 'carroceria', 'cambio', 'combustivel', 'opcional' ] ) ) {
 		wp_enqueue_script( 'lv-filtros', $uri . '/assets/js/filtros.js', [], $ver( '/assets/js/filtros.js' ), true );
 	}
@@ -45,7 +49,7 @@ add_action( 'after_setup_theme', function (): void {
  * type="module" nos nossos scripts: sao ES modules, e assim ja vem deferidos.
  */
 add_filter( 'script_loader_tag', function ( string $tag, string $handle ): string {
-	if ( ! in_array( $handle, [ 'lv-menu', 'lv-filtros', 'lv-galeria' ], true ) ) {
+	if ( ! in_array( $handle, [ 'lv-menu', 'lv-tema', 'lv-filtros', 'lv-galeria' ], true ) ) {
 		return $tag;
 	}
 	return str_replace( ' src=', ' type="module" src=', $tag );

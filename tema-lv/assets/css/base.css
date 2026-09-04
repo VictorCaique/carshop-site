@@ -28,7 +28,7 @@ h1, h2, h3, h4 {
 	font-family: var(--fonte-titulo);
 	font-weight: var(--peso-titulo);
 	line-height: 1.2;
-	color: var(--cor-secundaria);
+	color: var(--cor-titulo);
 	margin: 0 0 .5em;
 	text-wrap: balance;
 }
@@ -130,10 +130,10 @@ label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: 4px
 	z-index: 999;
 	padding: 12px 20px;
 	background: var(--cor-primaria);
-	color: var(--cor-branco);
+	color: var(--cor-primaria-contraste);
 	border-radius: 0 0 var(--raio-sm) 0;
 }
-.lv-skip:focus { left: 0; color: var(--cor-branco); }
+.lv-skip:focus { left: 0; color: var(--cor-primaria-contraste); }
 
 /* ---------- Icones ---------- */
 

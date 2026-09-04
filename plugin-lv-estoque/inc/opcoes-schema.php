@@ -41,22 +41,31 @@ function lv_opcoes_schema(): array {
 					'desc'    => 'Quadrado, 512x512.',
 					'largura' => 'terco',
 				],
+			],
+		],
+
+		'aparencia' => [
+			'titulo' => 'Aparencia',
+			'campos' => [
 				'cor_primaria' => [
 					'label'   => 'Cor primaria',
 					'type'    => 'color',
 					'std'     => '#0B3D91',
+					'desc'    => 'Links, botoes principais e destaques de navegacao.',
 					'largura' => 'terco',
 				],
 				'cor_secundaria' => [
 					'label'   => 'Cor secundaria',
 					'type'    => 'color',
 					'std'     => '#111827',
+					'desc'    => 'Titulos, rodape e o fundo do hero.',
 					'largura' => 'terco',
 				],
 				'cor_destaque' => [
 					'label'   => 'Cor de destaque',
 					'type'    => 'color',
 					'std'     => '#F59E0B',
+					'desc'    => 'Botao de acao, selos e estrelas.',
 					'largura' => 'terco',
 				],
 				'fonte' => [
@@ -67,6 +76,76 @@ function lv_opcoes_schema(): array {
 						'moderno' => 'Moderno - Inter / Inter (padrao, seguro)',
 						'robusto' => 'Robusto - Barlow Condensed / Inter (picape, 4x4, populares)',
 						'premium' => 'Premium - Playfair Display / Source Sans 3 (importados, alto padrao)',
+					],
+				],
+				'esquema_cores' => [
+					'label'   => 'Fundo do site',
+					'type'    => 'select',
+					'std'     => 'claro',
+					'largura' => 'meia',
+					'desc'    => 'No modo automatico o site acompanha a preferencia do celular do visitante.',
+					'opcoes'  => [
+						'claro'      => 'Claro (padrao)',
+						'escuro'     => 'Escuro',
+						'automatico' => 'Automatico - segue o aparelho do visitante',
+					],
+				],
+				'cor_fundo_escuro' => [
+					'label'   => 'Cor base do modo escuro',
+					'type'    => 'color',
+					'std'     => '#0F1115',
+					'desc'    => 'Os cinzas, as bordas e o rodape do modo escuro sao derivados dela.',
+					'largura' => 'meia',
+				],
+				'alternador_tema' => [
+					'label' => 'Botao de claro/escuro no menu',
+					'type'  => 'checkbox',
+					'std'   => 0,
+					'desc'  => 'Deixa o visitante trocar. A escolha fica salva no navegador dele.',
+				],
+				'raio_cantos' => [
+					'label'   => 'Cantos',
+					'type'    => 'select',
+					'std'     => 'suave',
+					'largura' => 'terco',
+					'opcoes'  => [
+						'reto'        => 'Reto - sem arredondamento',
+						'suave'       => 'Suave (padrao)',
+						'arredondado' => 'Arredondado',
+					],
+				],
+				'sombra_cards' => [
+					'label'   => 'Sombra dos cards',
+					'type'    => 'select',
+					'std'     => 'suave',
+					'largura' => 'terco',
+					'opcoes'  => [
+						'nenhuma'   => 'Nenhuma - visual plano',
+						'suave'     => 'Suave (padrao)',
+						'destacada' => 'Destacada',
+					],
+				],
+				'largura_conteudo' => [
+					'label'   => 'Largura do conteudo',
+					'type'    => 'select',
+					'std'     => 'padrao',
+					'largura' => 'terco',
+					'opcoes'  => [
+						'compacto' => 'Compacta - 1080px',
+						'padrao'   => 'Padrao - 1200px',
+						'amplo'    => 'Ampla - 1360px',
+					],
+				],
+				'hero_escurecer' => [
+					'label'   => 'Escurecer a imagem do hero',
+					'type'    => 'select',
+					'std'     => 'medio',
+					'largura' => 'meia',
+					'desc'    => 'Aumente se o titulo estiver dificil de ler sobre a foto.',
+					'opcoes'  => [
+						'leve'  => 'Leve - foto mais visivel',
+						'medio' => 'Medio (padrao)',
+						'forte' => 'Forte - texto mais legivel',
 					],
 				],
 			],

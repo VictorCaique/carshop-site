@@ -107,6 +107,12 @@ regra de ouro no WordPress.
 **A aparência mora no tema**, e nenhuma cor literal existe no CSS: os tokens vêm de
 `inc/customizacao.php`, alimentados pelas Configurações do Site. Trocar 3 cores + logo = loja nova.
 
+A aba **Aparência** vai além das cores: fundo claro, escuro ou automático (seguindo o aparelho
+do visitante), botão opcional de claro/escuro no menu, cantos, sombra dos cards, largura do
+conteúdo e quanto a foto do hero é escurecida. Os neutros do modo escuro são derivados de uma
+única cor base, e a cor primária da loja é clareada até passar em contraste AA sobre ela — o
+azul-marinho da marca não some no preto.
+
 ---
 
 ## O que já está implementado

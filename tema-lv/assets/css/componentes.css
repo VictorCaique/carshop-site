@@ -26,7 +26,7 @@
 	font-family: var(--fonte-titulo);
 	font-weight: var(--peso-titulo);
 	font-size: 1.25rem;
-	color: var(--cor-secundaria);
+	color: var(--cor-titulo);
 }
 
 .lv-nav { display: flex; align-items: center; gap: 24px; }
@@ -41,7 +41,7 @@
 }
 
 .lv-nav__lista a {
-	color: var(--cor-secundaria);
+	color: var(--cor-titulo);
 	text-decoration: none;
 	font-weight: 500;
 	padding: 8px 0;
@@ -70,7 +70,7 @@
 	height: 2px;
 	width: 24px;
 	margin-inline: auto;
-	background: var(--cor-secundaria);
+	background: var(--cor-titulo);
 	transition: transform .2s, opacity .2s;
 }
 .lv-menu-toggle[aria-expanded="true"] .lv-menu-toggle__barra:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -100,6 +100,44 @@
 	.lv-nav__cta { margin-top: 16px; justify-content: center; }
 }
 
+/* ---------- Alternador de tema ---------- */
+
+.lv-tema-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	flex: none;
+	width: 44px;
+	height: 44px;
+	padding: 0;
+	border: 1px solid var(--cor-borda);
+	border-radius: var(--raio-pill);
+	background: var(--cor-fundo);
+	color: var(--cor-titulo);
+	transition: border-color .15s, color .15s;
+}
+.lv-tema-toggle:hover { border-color: var(--cor-primaria); color: var(--cor-primaria); }
+
+/* Um icone por vez: o sol no tema escuro (para clarear) e a lua no claro. */
+.lv-tema-toggle__sol { display: none; }
+[data-tema="escuro"] .lv-tema-toggle__sol { display: block; }
+[data-tema="escuro"] .lv-tema-toggle__lua { display: none; }
+
+.lv-tema-toggle__texto { display: none; }
+
+@media (max-width: 860px) {
+	/* Dentro da gaveta o botao vira uma linha de menu, com rotulo. */
+	.lv-tema-toggle {
+		width: auto;
+		justify-content: flex-start;
+		padding: 0 16px;
+		margin-top: 12px;
+		border-radius: var(--raio-sm);
+	}
+	.lv-tema-toggle__texto { display: inline; font-weight: 500; }
+}
+
 /* ---------- Botoes ---------- */
 
 .lv-btn {
@@ -119,16 +157,16 @@
 	background: none;
 }
 
-.lv-btn--primaria { background: var(--cor-primaria); color: var(--cor-branco); }
-.lv-btn--primaria:hover { background: var(--cor-primaria-escura); color: var(--cor-branco); }
+.lv-btn--primaria { background: var(--cor-primaria); color: var(--cor-primaria-contraste); }
+.lv-btn--primaria:hover { background: var(--cor-primaria-escura); color: var(--cor-primaria-contraste); }
 
-.lv-btn--destaque { background: var(--cor-destaque); color: var(--cor-secundaria); }
-.lv-btn--destaque:hover { background: var(--cor-destaque-escura); color: var(--cor-secundaria); }
+.lv-btn--destaque { background: var(--cor-destaque); color: var(--cor-destaque-contraste); }
+.lv-btn--destaque:hover { background: var(--cor-destaque-escura); color: var(--cor-destaque-contraste); }
 
 .lv-btn--whatsapp { background: var(--cor-whatsapp); color: var(--cor-whatsapp-texto); }
 .lv-btn--whatsapp:hover { background: var(--cor-whatsapp-escura); color: var(--cor-whatsapp-texto); }
 
-.lv-btn--contorno { border-color: var(--cor-borda); color: var(--cor-secundaria); background: var(--cor-fundo); }
+.lv-btn--contorno { border-color: var(--cor-borda); color: var(--cor-titulo); background: var(--cor-fundo); }
 .lv-btn--contorno:hover { border-color: var(--cor-primaria); color: var(--cor-primaria); }
 
 .lv-btn--texto { color: var(--cor-texto-suave); padding-inline: 8px; }
@@ -186,7 +224,7 @@
 }
 
 .lv-card__titulo { font-size: 1.05rem; margin: 0; }
-.lv-card__titulo a { color: var(--cor-secundaria); text-decoration: none; }
+.lv-card__titulo a { color: var(--cor-titulo); text-decoration: none; }
 .lv-card__titulo a:hover { color: var(--cor-primaria); }
 
 .lv-card__specs {
@@ -211,7 +249,7 @@
 	border-top: 1px solid var(--cor-borda);
 }
 
-.lv-card__preco strong { font-size: 1.25rem; font-family: var(--fonte-titulo); color: var(--cor-secundaria); display: block; }
+.lv-card__preco strong { font-size: 1.25rem; font-family: var(--fonte-titulo); color: var(--cor-titulo); display: block; }
 
 .lv-preco-antigo {
 	display: block;
@@ -234,11 +272,11 @@
 	letter-spacing: .04em;
 	text-transform: uppercase;
 	color: var(--cor-branco);
-	background: var(--cor-texto-suave);
+	background: var(--cor-selo-fundo);
 }
-.lv-selo--vendido { background: var(--cor-erro); }
-.lv-selo--reservado { background: var(--cor-alerta); }
-.lv-selo--promo { background: var(--cor-destaque); color: var(--cor-secundaria); }
+.lv-selo--vendido { background: var(--cor-selo-vendido); }
+.lv-selo--reservado { background: var(--cor-selo-reservado); }
+.lv-selo--promo { background: var(--cor-destaque); color: var(--cor-destaque-contraste); }
 
 .lv-selo--grande {
 	top: 50%;
@@ -307,10 +345,10 @@
 	border: 1px solid var(--cor-borda);
 	border-radius: var(--raio-sm);
 	text-decoration: none;
-	color: var(--cor-secundaria);
+	color: var(--cor-titulo);
 }
 .lv-paginacao .page-numbers:hover { border-color: var(--cor-primaria); color: var(--cor-primaria); }
-.lv-paginacao .page-numbers.current { background: var(--cor-primaria); border-color: var(--cor-primaria); color: var(--cor-branco); }
+.lv-paginacao .page-numbers.current { background: var(--cor-primaria); border-color: var(--cor-primaria); color: var(--cor-primaria-contraste); }
 .lv-paginacao .dots { border: 0; }
 
 /* ---------- Estado vazio ---------- */
@@ -430,7 +468,7 @@
 
 .lv-footer {
 	margin-top: 64px;
-	background: var(--cor-secundaria);
+	background: var(--cor-rodape-fundo);
 	color: var(--cor-inverso);
 }
 
@@ -458,7 +496,7 @@
 .lv-footer__social a { color: var(--cor-inverso); }
 .lv-footer__social a:hover { color: var(--cor-destaque); }
 
-.lv-footer__base { border-top: 1px solid rgb(255 255 255 / .12); }
+.lv-footer__base { border-top: 1px solid var(--cor-rodape-linha); }
 .lv-footer__base-inner {
 	display: flex;
 	flex-wrap: wrap;

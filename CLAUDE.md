@@ -48,13 +48,25 @@ Coisas que quebram o produto se forem violadas, não só o gosto de quem escreve
    `--cor-branco` e `--cor-inverso` justamente para não escrever `#fff`. Trocar 3 cores
    + logo tem que dar uma loja nova.
 
-5. **Sem jQuery no front, sem page builder, sem plugin pago.** Orçamentos: CSS < 60 KB,
-   JS < 30 KB (hoje 27 KB e 7,7 KB). No admin o jQuery é permitido — é do próprio WP.
+5. **Todo token novo existe nos dois esquemas, claro e escuro.** Os tokens saem em três
+   camadas: `lv_tokens_base()` (marca, fonte, geometria — igual nos dois), `lv_tokens_esquema()`
+   (neutros e derivados da primária — uma versão por esquema) e os blocos `[data-tema]`,
+   emitidos só quando alguém pode trocar de tema. Se um token de cor entrar só em
+   `lv_tokens_base()`, ele fica errado em metade dos sites.
 
-6. **Filtros da vitrine por GET, via `pre_get_posts`.** Sem FacetWP/Search&Filter: a URL
+   Daí a separação de papéis que parece redundante e não é:
+   `--cor-titulo` é *texto* (vira claro no escuro), `--cor-secundaria` é *superfície escura
+   da marca* (rodapé, hero — escura sempre). `--cor-primaria-contraste` e
+   `--cor-destaque-contraste` são calculados por luminância: é o que impede texto branco
+   em cima de amarelo.
+
+6. **Sem jQuery no front, sem page builder, sem plugin pago.** Orçamentos: CSS < 60 KB,
+   JS < 30 KB (hoje 29 KB e 9,1 KB). No admin o jQuery é permitido — é do próprio WP.
+
+7. **Filtros da vitrine por GET, via `pre_get_posts`.** Sem FacetWP/Search&Filter: a URL
    precisa ser compartilhável e indexável.
 
-7. **Veículo vendido não é apagado.** Sai da vitrine, mas a URL continua viva com selo e
+8. **Veículo vendido não é apagado.** Sai da vitrine, mas a URL continua viva com selo e
    CTA de similares. Preserva SEO e ainda gera lead.
 
 ## Camada de campos
@@ -85,17 +97,33 @@ Não reintroduza:
   sem vendedor definido. Por isso existe o arrastar-para-reordenar.
 - **`status_veiculo` no `meta_query` precisa do `NOT EXISTS`** em `OR` com o `!= 'vendido'`,
   senão veículos cadastrados antes do campo existir somem da vitrine.
+- **Nada de `esc_attr()` dentro de `<style>`.** O navegador não decodifica entidades ali:
+  `esc_attr("'Inter', sans-serif")` vira `&#039;Inter&#039;` literal e a fonte não carrega.
+  Os tokens saem por `lv_css_valor()`, que é lista branca de caracteres.
+- **O `<script id="lv-tema-inicial">` é inline e síncrono de propósito.** Ele lê o
+  `localStorage` e aplica `[data-tema]` antes da primeira pintura; deferido, o visitante
+  do tema escuro leva um flash branco em toda navegação.
+- **A ordem dos blocos importa** no `<style id="lv-tokens">`: `:root:not([data-tema="claro"])`
+  dentro da media query e `:root[data-tema="escuro"]` têm a *mesma* especificidade, então a
+  escolha do visitante só vence a do aparelho porque vem depois no arquivo.
 - **TinyMCE dentro de aba escondida** pode abrir com altura zero. Há um `mceRepaint` na troca
   de aba; se o editor do "Sobre" aparecer quebrado, é por aí.
 
 ## Estado atual
 
-Três commits. **O ambiente nunca foi executado** — o código passou por `php -l` e `node --check`,
-mais uma checagem estática de colisão de nomes entre tema e plugin, mas nada rodou de verdade.
+O ambiente **já roda** em `localhost:8080`, com uma loja de verdade configurada (logo, mapa,
+vendedores) e os 6 veículos do seed. Home, vitrine com filtros, ficha do veículo, 404 e rodapé
+foram vistos nos dois esquemas de cor.
 
-O primeiro `make install && make seed` é o teste real. O que eu olharia primeiro, em ordem:
-o repeater de vendedores e o media picker nas Configurações do Site, a galeria na ficha do
-veículo, e os filtros da vitrine com `?marca=honda&preco_max=80000`.
+A aba **Aparência** (fundo claro/escuro/automático, botão de tema, cantos, sombra, largura,
+overlay do hero) foi conferida em tela e o contraste dos tokens é verificado por cálculo: todo
+par texto/fundo passa em AA nos dois esquemas. Se mexer nos tokens, refaça essa conta em vez
+de confiar no olho — a cor da loja entra na fórmula, então o que passa numa loja pode falhar
+na próxima.
+
+O que **não** foi exercitado ainda: o alternador de tema num aparelho com `prefers-color-scheme:
+dark` de verdade (só forçado no desktop), o `image_advanced` com muitas fotos, e o envio do
+formulário de contato pelo Mailpit.
 
 ## Convenções
 
