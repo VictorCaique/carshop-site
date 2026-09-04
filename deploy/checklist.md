@@ -32,6 +32,7 @@ Sem isso completo, **não comece**. O maior atraso desse tipo de projeto é espe
 
 - [ ] **Identidade:** logo, logo do rodapé, favicon
 - [ ] **Aparência:** 3 cores, preset de fonte, fundo claro/escuro, cantos, sombra, largura
+- [ ] Altura do logo e da barra do topo ajustadas ao logo do cliente (conferir também no celular)
 - [ ] Se o fundo for escuro ou automático: conferir o logo do rodapé e a foto do hero nos dois temas
 - [ ] **Contato:** endereço, mapa embed, telefone, e-mail, CNPJ, horários
 - [ ] **Vendedores:** nome + WhatsApp (formato `5511987654321`) de cada um

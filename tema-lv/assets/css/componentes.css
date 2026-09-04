@@ -21,11 +21,12 @@
 }
 
 .lv-logo { display: inline-flex; align-items: center; text-decoration: none; }
-.lv-logo__img { max-height: 48px; width: auto; }
+.lv-logo__img { max-height: var(--logo-altura); width: auto; }
 .lv-logo__texto {
 	font-family: var(--fonte-titulo);
 	font-weight: var(--peso-titulo);
-	font-size: 1.25rem;
+	/* Sem imagem, o nome da loja acompanha a altura escolhida para o logo. */
+	font-size: max(1rem, calc(var(--logo-altura) * .42));
 	color: var(--cor-titulo);
 }
 
@@ -76,6 +77,13 @@
 .lv-menu-toggle[aria-expanded="true"] .lv-menu-toggle__barra:nth-child(1) { transform: translateY(7px) rotate(45deg); }
 .lv-menu-toggle[aria-expanded="true"] .lv-menu-toggle__barra:nth-child(2) { opacity: 0; }
 .lv-menu-toggle[aria-expanded="true"] .lv-menu-toggle__barra:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+@media (max-width: 640px) {
+	:root {
+		--logo-altura: var(--logo-altura-mob);
+		--header-altura: var(--header-altura-mob);
+	}
+}
 
 @media (max-width: 860px) {
 	.lv-menu-toggle { display: flex; }
@@ -481,7 +489,7 @@
 
 .lv-footer__titulo { font-size: .875rem; text-transform: uppercase; letter-spacing: .08em; color: var(--cor-branco); }
 .lv-footer__logo .lv-logo__texto { color: var(--cor-branco); }
-.lv-footer__logo .lv-logo__img { max-height: 56px; }
+.lv-footer__logo .lv-logo__img { max-height: calc(var(--logo-altura) + 8px); }
 .lv-footer__slogan { color: var(--cor-inverso-suave); font-size: .9375rem; }
 
 .lv-footer__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; font-size: .9375rem; }

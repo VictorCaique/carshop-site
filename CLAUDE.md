@@ -97,6 +97,10 @@ Não reintroduza:
   sem vendedor definido. Por isso existe o arrastar-para-reordenar.
 - **`status_veiculo` no `meta_query` precisa do `NOT EXISTS`** em `OR` com o `!= 'vendido'`,
   senão veículos cadastrados antes do campo existir somem da vitrine.
+- **`--header-altura` tem que bater com a altura real da barra.** A gaveta do menu mobile é
+  posicionada com `inset: var(--header-altura) 0 auto 0`, então um logo mais alto que o token
+  faz o menu abrir por cima do cabeçalho. Por isso a altura da barra é derivada
+  (`max(altura_topbar, altura_logo + 20)`) em vez de ser o campo cru.
 - **Nada de `esc_attr()` dentro de `<style>`.** O navegador não decodifica entidades ali:
   `esc_attr("'Inter', sans-serif")` vira `&#039;Inter&#039;` literal e a fonte não carrega.
   Os tokens saem por `lv_css_valor()`, que é lista branca de caracteres.

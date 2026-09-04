@@ -213,6 +213,21 @@ function lv_tokens_base(): array {
 	];
 	$largura = $larguras[ (string) lv_option( 'largura_conteudo', 'padrao' ) ] ?? $larguras['padrao'];
 
+	// O campo e number: o min/max do HTML e so dica de navegador, quem garante
+	// o intervalo e isto aqui.
+	$topbar = max( 56, min( 120, (int) lv_option( 'altura_topbar', 72 ) ) );
+	$logo   = max( 24, min( 96, (int) lv_option( 'altura_logo', 48 ) ) );
+
+	// A barra nunca pode ser mais baixa que o proprio logo: no mobile a gaveta
+	// do menu e posicionada com inset: var(--header-altura), entao um token
+	// menor que a barra real faria o menu abrir por cima do cabecalho.
+	$header = max( $topbar, $logo + 20 );
+
+	// No celular a barra e fixa e rouba altura util da tela: teto mais baixo,
+	// mantendo a mesma folga entre logo e barra.
+	$logo_mob   = min( $logo, 48 );
+	$header_mob = max( min( $header, 76 ), $logo_mob + 20 );
+
 	// Opacidades do degrade sobre a foto do hero: inicio (esquerda) e fim.
 	$overlays = [
 		'leve'  => [ '.55', '.10' ],
@@ -259,7 +274,11 @@ function lv_tokens_base(): array {
 		'--raio-pill'              => '999px',
 		'--container'              => $largura,
 		'--gap'                    => '24px',
-		'--header-altura'          => '72px',
+
+		'--logo-altura'            => $logo . 'px',
+		'--logo-altura-mob'        => $logo_mob . 'px',
+		'--header-altura'          => $header . 'px',
+		'--header-altura-mob'      => $header_mob . 'px',
 
 		'--hero-overlay'           => sprintf(
 			'linear-gradient(100deg, rgb(0 0 0 / %s) 20%%, rgb(0 0 0 / %s) 100%%)',

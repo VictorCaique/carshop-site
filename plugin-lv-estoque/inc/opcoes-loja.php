@@ -105,7 +105,20 @@ function lv_sanitizar_valor( array $campo, $valor ) {
 			return empty( $valor ) ? 0 : 1;
 
 		case 'number':
-			return '' === $valor ? '' : (int) $valor;
+			if ( '' === $valor ) {
+				return '';
+			}
+			// O min/max do esquema ja vai para o HTML, mas isso e so dica de
+			// navegador: quem grava fora do intervalo tem o valor corrigido
+			// aqui, senao o campo volta para a tela mostrando o valor invalido.
+			$numero = (int) $valor;
+			if ( isset( $campo['min'] ) ) {
+				$numero = max( (int) $campo['min'], $numero );
+			}
+			if ( isset( $campo['max'] ) ) {
+				$numero = min( (int) $campo['max'], $numero );
+			}
+			return $numero;
 
 		case 'email':
 			return sanitize_email( (string) $valor );
