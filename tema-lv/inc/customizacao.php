@@ -228,6 +228,21 @@ function lv_tokens_base(): array {
 	$logo_mob   = min( $logo, 48 );
 	$header_mob = max( min( $header, 76 ), $logo_mob + 20 );
 
+	// Padding lateral da barra. Na tela pequena a barra ja e apertada: teto
+	// proprio para o logo e o menu nao se espremerem.
+	$padding     = max( 0, min( 64, (int) lv_option( 'padding_topbar', 0 ) ) );
+	$padding_mob = min( $padding, 16 );
+
+	// O respiro vertical de cada faixa. Sao clamps porque o espaco tem que
+	// encolher junto com a tela - um valor fixo que respira no desktop vira
+	// meia tela vazia no celular.
+	$espacos = [
+		'compacto' => 'clamp(28px, 4vw, 48px)',
+		'padrao'   => 'clamp(40px, 6vw, 72px)',
+		'arejado'  => 'clamp(56px, 8vw, 104px)',
+	];
+	$espaco = $espacos[ (string) lv_option( 'espaco_secoes', 'padrao' ) ] ?? $espacos['padrao'];
+
 	// Opacidades do degrade sobre a foto do hero: inicio (esquerda) e fim.
 	$overlays = [
 		'leve'  => [ '.55', '.10' ],
@@ -275,6 +290,10 @@ function lv_tokens_base(): array {
 		'--container'              => $largura,
 		'--gap'                    => '24px',
 
+		'--secao-espaco'           => $espaco,
+
+		'--topbar-padding'         => $padding . 'px',
+		'--topbar-padding-mob'     => $padding_mob . 'px',
 		'--logo-altura'            => $logo . 'px',
 		'--logo-altura-mob'        => $logo_mob . 'px',
 		'--header-altura'          => $header . 'px',

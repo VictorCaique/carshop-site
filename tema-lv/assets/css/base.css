@@ -85,7 +85,7 @@ label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: 4px
 
 .lv-main { min-height: 50vh; }
 
-.lv-secao { padding-block: clamp(40px, 6vw, 72px); }
+.lv-secao { padding-block: var(--secao-espaco); }
 .lv-secao:nth-of-type(even) { background: var(--cor-fundo-alt); }
 
 .lv-secao__cabecalho {

@@ -121,6 +121,27 @@ function lv_opcoes_schema(): array {
 					'desc'    => 'No celular o logo e a barra sao reduzidos para nao comer a tela.',
 					'largura' => 'meia',
 				],
+				'padding_topbar' => [
+					'label'   => 'Padding lateral da barra do topo (px)',
+					'type'    => 'number',
+					'std'     => 0,
+					'min'     => 0,
+					'max'     => 64,
+					'desc'    => 'Afasta o logo e o menu das bordas da barra. No celular fica limitado a 16px.',
+					'largura' => 'meia',
+				],
+				'espaco_secoes' => [
+					'label'   => 'Espaco entre as secoes',
+					'type'    => 'select',
+					'std'     => 'padrao',
+					'largura' => 'meia',
+					'desc'    => 'Altura de respiro de cada faixa da home e das paginas.',
+					'opcoes'  => [
+						'compacto' => 'Compacto - mais conteudo na primeira tela',
+						'padrao'   => 'Padrao',
+						'arejado'  => 'Arejado - mais respiro entre as faixas',
+					],
+				],
 				'raio_cantos' => [
 					'label'   => 'Cantos',
 					'type'    => 'select',
